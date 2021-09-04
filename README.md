@@ -10,6 +10,7 @@
   * [运行脚本](#5运行脚本)
   * [按需求修改脚本（可选）](#6按需求修改脚本可选)
   * [定期自动爬取微博（可选）](#7定期自动爬取微博可选)
+  * [同时运行多个程序（可选）](#8同时运行多个程序)
 * [如何获取user_id](#如何获取user_id)
 * [添加cookie与不添加cookie的区别（可选）](#添加cookie与不添加cookie的区别可选)
 * [如何获取cookie（可选）](#如何获取cookie可选)
@@ -541,7 +542,12 @@ txt文件名格式可以参考[程序设置](#3程序设置)中的设置user_id_
 ```
 注意每一行的用户配置参数以空格分隔，如果第一个参数全部由数字组成，程序就认为此行为一个用户的配置，否则程序会认为该行只是注释，跳过该行；第二个参数可以为任意格式，建议写用户昵称；第三个如果是日期格式（yyyy-mm-dd），程序就将该日期设置为用户自己的since_date，否则使用config.json中的since_date爬取该用户的微博，第二个参数和第三个参数也可以不填。
 也可以设置第四个参数，将被读取为query_list。
-
+### 8.同时运行多个程序（可选）
+可以建立多个config.json文件，通过在terminal中运行程序的时候指定特定的配置文件就可以实现同时运行多个程序
+```
+python weibo.py --config_path="config.json"
+python weibo.py --config_path="config2.json"
+```
 ## 如何获取user_id
 1.打开网址<https://weibo.cn>，搜索我们要找的人，如"迪丽热巴"，进入她的主页；<br>
 ![](https://picture.cognize.me/cognize/github/weibospider/user_home.png)
