@@ -656,6 +656,8 @@ class Weibo(object):
         # 问答的详情内容
         weibo['question_detail'] = weibo_info['page_info']['content1']
         weibo['question_see_price'] = weibo_info['page_info']['content2']
+        # 爬取时间
+        weibo['spider_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         return self.standardize_info(weibo)
 
     def print_user_info(self):
@@ -686,6 +688,7 @@ class Weibo(object):
         try:
             logger.info(u'微博id：%d', weibo['id'])
             logger.info(u'微博正文：%s', weibo['text'])
+            logger.info(u'爬取时间：%s', weibo['spider_time'])
             logger.info(u'问答详情：%s', weibo['question_detail'])
             logger.info(u'问答围观价格：%s', weibo['question_see_price'])
             logger.info(u'原始图片url：%s', weibo['pics'])
@@ -1004,7 +1007,7 @@ class Weibo(object):
         """获取要写入结果文件的表头"""
         result_headers = [
             'id', 'bid', '正文', '头条文章url', '原始图片url', '视频url', '位置', '日期', '工具',
-            '点赞数', '评论数', '转发数', '话题', '@用户', '问答详情', '问答围观和价格'
+            '点赞数', '评论数', '转发数', '话题', '@用户', '问答详情', '问答围观和价格', '爬取时间'
         ]
         if not self.filter:
             result_headers2 = ['是否原创', '源用户id', '源用户昵称']
