@@ -656,7 +656,7 @@ class Weibo(object):
         # 问答的详情内容
         weibo['question_detail'] = weibo_info['page_info']['content1']
         weibo['question_see_price'] = weibo_info['page_info']['content2']
-        # 爬取时间
+        # 爬取时间完成
         weibo['spider_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         return self.standardize_info(weibo)
 
