@@ -15,6 +15,7 @@
 * [添加cookie与不添加cookie的区别（可选）](#添加cookie与不添加cookie的区别可选)
 * [如何获取cookie（可选）](#如何获取cookie可选)
 * [如何检测cookie是否有效（可选）](#如何检测cookie是否有效可选)
+* [被ban了怎么办](#被ban了怎么办)
 
 ## 功能
 连续爬取**一个**或**多个**新浪微博用户（如[Dear-迪丽热巴](https://weibo.cn/u/1669879400)、[郭碧婷](https://weibo.cn/u/1729370543)）的数据，并将结果信息写入文件。写入信息几乎包括了用户微博的所有数据，主要有**用户信息**和**微博信息**两大类，前者包含用户昵称、关注数、粉丝数、微博数等等；后者包含微博正文、发布时间、发布工具、评论数等等，因为内容太多，这里不再赘述，详细内容见[输出](#输出)部分。具体的写入文件类型如下：
@@ -578,3 +579,8 @@ python weibo.py --config_path="config2.json"
 ```
 运行程序，如果程序提示cookie无效等类似信息，说明cookie无效，否则cookie是有效的；<br>
 2.将获取的cookie填到[cookie版](https://github.com/dataabc/weiboSpider)的config.json中，运行程序。如果程序提示cookie无效等相关信息，说明cookie无效，否则cookie是有效的。因为cookie版中cookie为必需项，且**cookie版与免cookie版的cookie通用**。
+## 被ban了怎么办
+1. 保存当前的状态，爬到那个微博id了，爬到哪一页了
+2. 等待一段时间，例如5分钟
+3. 更换cookie，重试
+4. 更换id地址

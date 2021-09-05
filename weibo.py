@@ -62,9 +62,9 @@ class Weibo(object):
             'comment_max_download_count']  #如果设置了下评论，每条微博评论数会限制在这个值内
         self.result_dir_name = config.get(
             'result_dir_name', 0)  # 结果目录名，取值为0或1，决定结果文件存储在用户昵称文件夹里还是用户id文件夹里
-        cookie = config.get('cookie')  # 微博cookie，可填可不填
-        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
-        self.headers = {'User_Agent': user_agent, 'Cookie': cookie}
+        self.cookie = config.get('cookie')  # 微博cookie，可填可不填
+        self.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+        self.headers = {'User_Agent': self.user_agent, 'Cookie': self.cookie}
         self.mysql_config = config.get('mysql_config')  # MySQL数据库连接配置，可以不填
         user_id_list = config['user_id_list']
         query_list = config.get('query_list') or []
@@ -92,6 +92,8 @@ class Weibo(object):
         self.got_count = 0  # 存储爬取到的微博数
         self.weibo = []  # 存储爬取到的所有微博信息
         self.weibo_id_list = []  # 存储爬取到的所有微博id
+        self.ban_flag = 0  # 爬虫是否被ban 1是 0 否
+        self.cookie_rank = 0  # 备用cookie的排序
 
     def validate_config(self, config):
         """验证配置是否正确"""
@@ -162,6 +164,18 @@ class Weibo(object):
         except ValueError:
             return False
 
+    def get_other_cookies(self):
+        """获取其他的cookie信息"""
+        cookie_path = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep + 'cookies.json'
+        if not os.path.isfile(cookie_path):
+            logger.warning(u'当前路径：%s 不存在配置文件cookies.json',
+                           (os.path.split(os.path.realpath(__file__))[0] + os.sep))
+            sys.exit()
+        with open(cookie_path, encoding='utf-8') as f:
+            cookies = json.loads(f.read())
+            return cookies['cookies']
+
     def get_json(self, params):
         """获取网页中json数据"""
         url = 'https://m.weibo.cn/api/container/getIndex?'
@@ -169,7 +183,18 @@ class Weibo(object):
                          params=params,
                          headers=self.headers,
                          verify=False)
-        return r.json()
+        if r.json()['ok']:
+            return r.json()
+        else:
+            logger.info(u'被ban了，替换cookie，等待10s,尝试使用第%s个备用cookie', str(self.cookie_rank))
+            sleep(600)
+            alter_cookies = self.get_other_cookies()
+            one_cookie = alter_cookies[self.cookie_rank%(len(alter_cookies))]
+#             todo cookies headers
+            self.headers = {'User_Agent': self.user_agent, 'Cookie': one_cookie}
+            self.cookie_rank = self.cookie_rank + 1
+            self.get_json(params)
+
 
     def get_weibo_json(self, page):
         """获取网页中微博json数据"""
@@ -313,6 +338,9 @@ class Weibo(object):
             return user
         else:
             logger.info(u"被ban了")
+            self.ban_flag = 1
+            # todo ban之后替换cookies
+            logger.info(u"被ban了，开始替换cookie")
             sys.exit()
 
     def get_long_weibo(self, id):
@@ -1548,10 +1576,10 @@ class Weibo(object):
 
                     # 通过加入随机等待避免被限制。爬虫速度过快容易被系统限制(一段时间后限
                     # 制会自动解除)，加入随机等待模拟人的操作，可降低被系统限制的风险。默
-                    # 认是每爬取1到5页随机等待6到10秒，如果仍然被限，可适当增加sleep时间
+                    # 认是每爬取1到5页随机等待16到20秒，如果仍然被限，可适当增加sleep时间
                     if (page -
                             page1) % random_pages == 0 and page < page_count:
-                        sleep(random.randint(6, 10))
+                        sleep(random.randint(16, 20))
                         page1 = page
                         random_pages = random.randint(1, 5)
 
